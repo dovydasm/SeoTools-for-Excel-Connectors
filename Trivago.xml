@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Suite Category="Others" Title="Trivago" Id="Trivago" RequireVersion="7.0.0" SourceUrl="https://github.com/nielsbosma/SeoTools-for-Excel-Connectors/blob/master/Trivago.xml" HelpUrl="http://seotoolsforexcel.com/Trivago/" HelpText="Documentation">
+
+  <Author Name="Dovydas Meilunas" Url="https://github.com/dovydasm"/>
+
+  <Resources>
+    <Resource Id="SortBy">
+      <Item Id="relevance desc" Title="Relevance"/>
+      <Item Id="price asc" Title="Price Only"/>
+      <!-- todo -->
+    </Resource>
+  </Resources>
+
+
+  <RestConnector Id="LocationSuggestions" Title="Location Suggestions" HelpText="Returns Location suggestions">
+    <Parameters>
+      <Text Id="Query" Title="Query" Debug.DefaultValue="New York" Required="true" HelpText="Search term"/>
+    </Parameters>
+    <Fetch>
+      <Fetch.Url>
+        <![CDATA[
+        https://www.trivago.com/search/com-US-US/v12_02_3_ad_cache/suggest_concepts?flags=9243&q=@Utils.UrlEncode(Model.Query)
+        ]]>
+      </Fetch.Url>
+    </Fetch>
+    <Parse>
+      <JsonPath Expr="$.result.*">
+        <JsonPath Expr="id" Id="Id" Title="Id" Converter="String" HelpText="ID"/>
+        <JsonPath Expr="c" Id="Name" Title="Name" Converter="String" HelpText="Location Name"/>
+        <JsonPath Expr="pths.continentName" Id="Continent" Title="Continent" Converter="String" HelpText=""/>
+        <JsonPath Expr="pths.countryName" Id="Country" Title="Country" Converter="String" HelpText=""/>
+        <JsonPath Expr="pths.regionName" Id="Region" Title="Region" Converter="String" HelpText=""/>
+      </JsonPath>
+    </Parse>
+    <Fail>
+      <JsonPath Expr="errors.message"/>
+    </Fail>
+  </RestConnector>
+
+  <RestConnector Id="GenerateCookies" Title="Generate cookies in order to show proper results" Hidden="true">
+    <Fetch>
+      <Fetch.Url>
+        <![CDATA[
+        https://www.trivago.com/search/region?aDateRange%5Barr%5D=2018-02-24&aDateRange%5Bdep%5D=2018-02-25&aPriceRange%5Bfrom%5D=0&aPriceRange%5Bto%5D=0&iPathId=34308
+        ]]>
+      </Fetch.Url>
+    </Fetch>
+    <Parse>
+      <XPath Expr="//*[@@id='show_nav']" Id="dummy" Title="Dummy JSONpath" Converter="String"/>
+    </Parse>
+  </RestConnector>
+
+  <RestConnector Id="Hotels" Title="Hotel Search" HelpText="Returns Hotel Search">
+    <Parameters>
+      <Text Id="LocationId" Title="Location ID" Debug.DefaultValue="34308" Required="true" HelpText="Location ID"/>
+      <Number Id="PriceMin" Title="Min price" DefaultValue="0" Required="false"/>
+      <Number Id="PriceMax" Title="Max price" DefaultValue="0" Required="false"/>
+    </Parameters>
+    <Prepare>
+      <Connector Id="GenerateCookies"/>
+    </Prepare>
+    <Paging PageSize="25" EvenPages="true">
+      <Parse>
+        <JsonPath Id="AvaliableRows" Expr="$.metadata.resultCount"/>
+      </Parse>
+    </Paging>
+    <Fetch>
+      <HttpSettings>
+        <RequestContentType>application/vnd.trivago.website+json;version=1</RequestContentType>
+        <RequestHeaders>
+          <Header Name='X-Requested-With'>XMLHttpRequest</Header>
+          <Header Name='Referer'>https://www.trivago.com</Header>
+        </RequestHeaders>
+      </HttpSettings>
+      <Fetch.Url>
+        <![CDATA[
+        https://www.trivago.com/search/region
+        ?aDateRange%5Barr%5D=2018-02-24&aDateRange%5Bdep%5D=2018-02-25
+        &aPriceRange%5Bfrom%5D=@(Model.PriceMin)
+        &aPriceRange%5Bto%5D=@(Model.PriceMax)
+        &iPathId=@(Model.LocationId)
+        &iLimit=25
+        &iOffset=@(Model.PageCursor.NextSkip)
+        ]]>
+      </Fetch.Url>
+    </Fetch>
+    <Parse>
+      <JsonPath Expr="$.items.*">
+        <JsonPath Expr="id" Id="Id" Title="Id" Converter="String" HelpText="ID"/>
+        <JsonPath Expr="isItemAvailable" Id="Available" Title="Available" Converter="Bool"/>
+        <JsonPath Expr="name" Id="Name" Title="Name" Converter="String"/>
+        <JsonPath Expr="homepageLink" Id="HomepageLink" Title="Homepage URL" Converter="String" />
+        <JsonPath Expr="hasFreeRoomWifi" Id="FreeWifi" Title="Free WiFi" Converter="Bool" />
+        <JsonPath Expr="deals.bestPrice.displayPrice" Id="BestPrice" Title="Best Price" Converter="Int" />
+        <JsonPath Expr="deals.bestPrice.name" Id="BestPriceName" Title="Best Price Provider" Converter="String" />
+        <JsonPath Expr="deals.maxPrice.displayPrice" Id="MaxPrice" Title="Max Price" Converter="String" />
+        <JsonPath Expr="rating.overallLiking" Id="OverallScore" Title="Overall Score" Converter="Int" />
+        <JsonPath Expr="rating.overallLikingTranslation" Id="OverallCategory" Title="Score Category" Converter="String" />
+        <JsonPath Expr="rating.basedOn" Id="BasedOn" Title="Total Ratings" Converter="Int" />
+      </JsonPath>
+    </Parse>
+    <Fail>
+      <JsonPath Expr="errors.message"/>
+    </Fail>
+  </RestConnector>
+</Suite>
