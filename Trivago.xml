@@ -46,7 +46,7 @@
       </Fetch.Url>
     </Fetch>
     <Parse>
-      <XPath Expr="//*[@@id='show_nav']" Id="dummy" Title="Dummy JSONpath" Converter="String"/>
+      <XPath Expr="//*[@@id='show_nav']" Id="dummy" Title="Dummy Element" Converter="String"/>
     </Parse>
   </RestConnector>
 
@@ -85,18 +85,21 @@
       </Fetch.Url>
     </Fetch>
     <Parse>
-      <JsonPath Expr="$.items.*">
+      <JsonPath Expr="$.[items,alternativeItems].*">
         <JsonPath Expr="id" Id="Id" Title="Id" Converter="String" HelpText="ID"/>
         <JsonPath Expr="isItemAvailable" Id="Available" Title="Available" Converter="Bool"/>
         <JsonPath Expr="name" Id="Name" Title="Name" Converter="String"/>
-        <JsonPath Expr="homepageLink" Id="HomepageLink" Title="Homepage URL" Converter="String" />
-        <JsonPath Expr="hasFreeRoomWifi" Id="FreeWifi" Title="Free WiFi" Converter="Bool" />
-        <JsonPath Expr="deals.bestPrice.displayPrice" Id="BestPrice" Title="Best Price" Converter="Int" />
-        <JsonPath Expr="deals.bestPrice.name" Id="BestPriceName" Title="Best Price Provider" Converter="String" />
-        <JsonPath Expr="deals.maxPrice.displayPrice" Id="MaxPrice" Title="Max Price" Converter="String" />
-        <JsonPath Expr="rating.overallLiking" Id="OverallScore" Title="Overall Score" Converter="Int" />
-        <JsonPath Expr="rating.overallLikingTranslation" Id="OverallCategory" Title="Score Category" Converter="String" />
-        <JsonPath Expr="rating.basedOn" Id="BasedOn" Title="Total Ratings" Converter="Int" />
+        <JsonPath Expr="homepageLink" Id="HomepageLink" Title="Homepage URL" Converter="String"/>
+        <JsonPath Expr="hasFreeRoomWifi" Id="FreeWifi" Title="Free WiFi" Converter="Bool"/>
+        <JsonPath Expr="deals.bestPrice.displayPrice" Id="BestPrice" Title="Best Price" Converter="Int"/>
+        <JsonPath Expr="deals.bestPrice.name" Id="BestPriceName" Title="Best Price Provider" Converter="String"/>
+        <JsonPath Expr="deals.maxPrice.displayPrice" Id="MaxPrice" Title="Max Price" Converter="String"/>
+        <JsonPath Expr="rating.overallLiking" Id="OverallScore" Title="Overall Score" Converter="Int"/>
+        <JsonPath Expr="rating.overallLikingTranslation" Id="OverallCategory" Title="Score Category" Converter="String"/>
+        <JsonPath Expr="rating.basedOn" Id="BasedOn" Title="Total Ratings" Converter="Int"/>
+        <JsonPath Expr="distance.poi" Id="PointOfInterest" Title="Point of interest" Converter="String"/>
+        <JsonPath Expr="distance.value" Id="PointOfInterest" Title="POI distance" Converter="String"/>
+        <JsonPath Expr="distance.unit" Id="PointOfInterest" Title="POI units" Converter="String"/>
       </JsonPath>
     </Parse>
     <Fail>
